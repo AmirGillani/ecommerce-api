@@ -33,8 +33,7 @@ const app = express();
 const corsOptions = {
 
   // SET ORIGION
-  origin: 'https://ecommerce-frontend-pi-one.vercel.app',
-  optionsSuccessStatus: 200,
+  origin: ['https://ecommerce-frontend-pi-one.vercel.app']
 };
 
 // CALL API TO HANDLE RESPONCE GOING OUT TO REACT
