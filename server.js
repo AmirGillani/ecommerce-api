@@ -8,8 +8,6 @@ const cloudinary= require("cloudinary");
 
 const express = require("express");
 
-const path = require("path");
-
 const cors = require("cors");
 
 const bodyParser = require("body-parser");
