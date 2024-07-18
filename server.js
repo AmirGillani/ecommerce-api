@@ -34,7 +34,6 @@ const corsOptions = {
 
   // SET ORIGION
   origin: 'https://ecommerce-frontend-pi-one.vercel.app',
-  credentials: true,
   optionsSuccessStatus: 200,
 };
 
