@@ -25,6 +25,8 @@ const HttpsErrors = require("./models/https-errors");
 
 const cookieParser = require("cookie-parser");
 
+const app = express();
+
 // INCLUDE THESE OPTIONS IF WE WANT TO SEND COOKIES TO FRONTEND
 
 const corsOptions = {
@@ -37,8 +39,6 @@ const corsOptions = {
 // CALL API TO HANDLE RESPONCE GOING OUT TO REACT
 
 app.use(cors(corsOptions));
-
-const app = express();
 
 // FOR JASON REQUESTS
 
