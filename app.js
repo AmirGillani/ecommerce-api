@@ -29,7 +29,6 @@ const corsOptions = {
 
   // SET ORIGION
   origin: 'http://localhost:3000',
-  credentials: true,
   optionsSuccessStatus: 200,
 };
 
