@@ -1,4 +1,3 @@
-const app = require("./app");
 
 const path = require("path");
 
