@@ -18,7 +18,6 @@ function createToken(user, statusCode, res) {
     ),
     httpOnly: true,
       secure: true, 
-    sameSite: 'strict'
   };
 
   res
