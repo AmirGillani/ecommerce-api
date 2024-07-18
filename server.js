@@ -33,7 +33,7 @@ const app = express();
 const corsOptions = {
 
   // SET ORIGION
-  origin: 'http://localhost:3000',
+  origin: 'https://ecommerce-frontend-pi-one.vercel.app',
   credentials: true,
   optionsSuccessStatus: 200,
 };
