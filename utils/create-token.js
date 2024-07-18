@@ -16,6 +16,10 @@ function createToken(user, statusCode, res) {
     expires: new Date(
        Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
+<<<<<<< HEAD
+=======
+      
+>>>>>>> 2eb3558e5e59168b85f9679e235e5866719efea3
     httpOnly: true
   };
 
