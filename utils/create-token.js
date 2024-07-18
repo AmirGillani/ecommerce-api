@@ -16,15 +16,7 @@ function createToken(user, statusCode, res) {
     expires: new Date(
        Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
-    httpOnly: true,
-      // path = where the cookie is valid
-        path: "/",
-       // path = where the cookie is valid
-        path: "/",
-        // secure = only send cookie over https
-        secure: true,
-        // sameSite = only send cookie if the request is coming from the same origin
-        sameSite: "none"
+    httpOnly: true
   };
 
   res
