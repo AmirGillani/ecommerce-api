@@ -90,7 +90,7 @@ module.exports.forgetPassword = catchAsyncError(async function (
 
   await user.save();
 
-  const resetPasswordURL = `${req.protocol}://localhost:3000/password/resetpassword/${resetToken}`;
+  const resetPasswordURL = `https://ecommerce-frontend-pi-one.vercel.app/password/resetpassword/${resetToken}`;
 
   const resetPasswordMessage = `Your reset password token is ${resetPasswordURL} \n\n If you have not requested for that then ignore this email.`;
 
