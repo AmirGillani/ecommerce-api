@@ -120,7 +120,7 @@ process.on("uncaughtException", (err)=>{
   process.exit(1);
 });
 
-cloudinary.config({ 
+cloudinary.v2.config({ 
   cloud_name: 'dj5ph1k2r', 
   api_key: '874228825552952', 
   api_secret: '-bVExvUKFfSF-nHfWp9F8iuQyqM' 
