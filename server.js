@@ -3,7 +3,7 @@ const path = require("path");
 
 const mongoose = require("mongoose");
 
-const cloudinary= require("cloudinary").v2;
+const cloudinary= require("cloudinary");
 
 const express = require("express");
 
