@@ -121,9 +121,9 @@ process.on("uncaughtException", (err)=>{
 });
 
 cloudinary.v2.config({ 
-  cloud_name: 'dj5ph1k2r', 
-  api_key: '874228825552952', 
-  api_secret: '-bVExvUKFfSF-nHfWp9F8iuQyqM' 
+  cloud_name: 'dhh9j0ion', 
+  api_key: '488515883499643', 
+  api_secret: 'yLs10KBBnvph_RhhRkE7tY8oymk' 
 });
 
 // IF WE WANT TO WRITE CONNECTION IN MODULE THEN USE THIS
