@@ -3,15 +3,13 @@ const path = require("path");
 
 const mongoose = require("mongoose");
 
-const cloudinary= require("cloudinary");
+const cloudinary= require("cloudinary").v2;
 
 const express = require("express");
 
 const cors = require("cors");
 
 const bodyParser = require("body-parser");
-
-const fileUpload = require("express-fileupload");
 
 const productRoutes = require("./routes/productsRoutes");
 
