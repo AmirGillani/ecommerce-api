@@ -6,16 +6,13 @@ function createToken(user, statusCode, res) {
 
   const token = jwt.sign(
     { userId: user.id, userEmail: user.email },
-    process.env.SECRET,
-    { expiresIn: process.env.TOKEN_EXPIRE }
+    process.env.SECRET
   );
 
     // OPTIONS FOR COOKIES
     
   const options = {
-    expires: new Date(
-       Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
-    ),
+
     httpOnly: true,
       // path = where the cookie is valid
         path: "/",
