@@ -89,11 +89,7 @@ req.body.images = imagesLinks;
   res.status(201).json({ success: true, product: product });
 });
 
-module.exports.updateProduct = asyncErrorHandler(async function (
-  req,
-  res,
-  next
-) {
+module.exports.updateProduct = asyncErrorHandler(async function (req, res, next) {
   let product;
 
   try {
@@ -106,61 +102,37 @@ module.exports.updateProduct = asyncErrorHandler(async function (
     return next(new HttpsError("Product not found !!", 404));
   }
 
-  // UPDATE IMAGES ONLY IF USER SENT REQ.BODY.IMAGES ATTRIBUTE
-
+  // ✅ If image is sent, update it
   if (req.body.images !== undefined) {
+    const image = req.body.images;
 
-    // Images Start Here
-
-    let images = [];
-
-    // ABSTRACT IMAGES FROM BODY OBJECT
-
-    if (typeof req.body.images === "string") {
-
-      // SINGLE IMAGES
-      images.push(req.body.images);
-    } else {
-
-      // MULTIPLE IMAGES
-
-      images = req.body.images;
+    if (typeof image !== "string") {
+      return next(new HttpsError("Invalid image format", 400));
     }
 
-    // Deleting Images From Cloudinary
-
-    for (let i = 0; i < product.images.length; i++) {
-      await cloudinary.v2.uploader.destroy(product.images[i].public_id);
+    // 🧹 Delete existing image from Cloudinary (if exists)
+    if (product.images && product.images.length > 0) {
+      await cloudinary.v2.uploader.destroy(product.images[0].public_id);
     }
 
-    const imagesLinks = [];
+    // ☁️ Upload new image to Cloudinary
+    const result = await cloudinary.v2.uploader.upload(image, {
+      folder: "products",
+    });
 
-    // UPDATE NEW IMAGES FROM IMAGES ARRAY TO CLAUDINARY
-
-    for (let i = 0; i < images.length; i++) 
-    {
-
-      // UPLOAD IMAGES
-
-      const result = await cloudinary.v2.uploader.upload(images[i], {
-        folder: "products",
-      });
-
-      // PUSH LINK IN LINKS ARRAY
-
-      imagesLinks.push({
-        public_id: result.public_id,
-        url: result.secure_url,
-      });
-
-      // ADD IMAGES LINKS TO BODY OBJECT
-      
-      req.body.images = imagesLinks;
-    }
+    // 🆕 Assign new image directly (no array)
+    req.body.images = {
+      public_id: result.public_id,
+      url: result.secure_url,
+    };
   }
 
+  // 📝 Update the product
   try {
-    product = await productsModel.findByIdAndUpdate(req.params.id, req.body);
+    product = await productsModel.findByIdAndUpdate(req.params.id, req.body, {
+      new: true, // return updated document
+      runValidators: true,
+    });
   } catch (err) {
     return next(new HttpsError("Error while Updating", 500));
   }
