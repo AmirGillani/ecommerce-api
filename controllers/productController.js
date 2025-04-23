@@ -42,13 +42,26 @@ module.exports.allAdminProducts = asyncErrorHandler(async function (
 module.exports.addProducts = asyncErrorHandler(async function (req, res, next) {
   let product;
 
+//   let images = [];
+
+// // If a single image is sent, convert to array
+// if (typeof req.body.images === "string") {
+//   images.push(req.body.images);
+// } else if (Array.isArray(req.body.images)) {
+//   images = req.body.images;
+// }
+
   let images = [];
 
-// If a single image is sent, convert to array
-if (typeof req.body.images === "string") {
-  images.push(req.body.images);
-} else if (Array.isArray(req.body.images)) {
-  images = req.body.images;
+// Handle FormData image fields
+if (req.body.images) {
+  if (typeof req.body.images === "string") {
+    images.push(req.body.images);
+  } else if (Array.isArray(req.body.images)) {
+    images = req.body.images;
+  } else {
+    images = [req.body.images];
+  }
 }
 
 // Upload images to Cloudinary
