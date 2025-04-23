@@ -30,9 +30,9 @@ const app = express();
 // INCLUDE THESE OPTIONS IF WE WANT TO SEND COOKIES TO FRONTEND
 
 const corsOptions = {
-  origin: '*',
+  origin: 'https://ecommerce-frontend-pi-one.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: false, // ⚠️ Must be false when origin is '*'
+  credentials: true, 
 };
 
 // CALL API TO HANDLE RESPONCE GOING OUT TO REACT
