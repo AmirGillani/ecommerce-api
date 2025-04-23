@@ -110,11 +110,6 @@ module.exports.updateProduct = asyncErrorHandler(async function (req, res, next)
       return next(new HttpsError("Invalid image format", 400));
     }
 
-    // 🧹 Delete existing image from Cloudinary (if exists)
-    if (product.images && product.images.length > 0) {
-      await cloudinary.v2.uploader.destroy(product.images[0].public_id);
-    }
-
     // ☁️ Upload new image to Cloudinary
     const result = await cloudinary.v2.uploader.upload(image, {
       folder: "products",
