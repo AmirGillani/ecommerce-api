@@ -42,15 +42,6 @@ module.exports.allAdminProducts = asyncErrorHandler(async function (
 module.exports.addProducts = asyncErrorHandler(async function (req, res, next) {
   let product;
 
-//   let images = [];
-
-// // If a single image is sent, convert to array
-// if (typeof req.body.images === "string") {
-//   images.push(req.body.images);
-// } else if (Array.isArray(req.body.images)) {
-//   images = req.body.images;
-// }
-
   let images = [];
 
 // Handle FormData image fields
@@ -103,24 +94,35 @@ module.exports.updateProduct = asyncErrorHandler(async function (req, res, next)
   }
 
   // ✅ If image is sent, update it
-  if (req.body.images !== undefined) {
-    const image = req.body.images;
 
-    if (typeof image !== "string") {
-      return next(new HttpsError("Invalid image format", 400));
-    }
+    let images = [];
 
-    // ☁️ Upload new image to Cloudinary
-    const result = await cloudinary.v2.uploader.upload(image, {
-      folder: "products",
-    });
-
-    // 🆕 Assign new image directly (no array)
-    req.body.images = {
-      public_id: result.public_id,
-      url: result.secure_url,
-    };
+  if (req.body.images) {
+  if (typeof req.body.images === "string") {
+    images.push(req.body.images);
+  } else if (Array.isArray(req.body.images)) {
+    images = req.body.images;
+  } else {
+    images = product.images;
   }
+}
+
+  // Upload images to Cloudinary
+const imagesLinks = [];
+
+for (let i = 0; i < images.length; i++) {
+  const result = await cloudinary.v2.uploader.upload(images[i], {
+    folder: "products",
+  });
+
+  imagesLinks.push({
+    public_id: result.public_id,
+    url: result.secure_url,
+  });
+}
+
+// Replace the images in the request body with uploaded image data
+req.body.images = imagesLinks;
 
   // 📝 Update the product
   try {
