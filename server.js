@@ -53,7 +53,12 @@ app.use(bodyParser.urlencoded({extended:true}));
 
 // FOR GETTING FILES
 
-app.use(fileUpload());
+// Use express-fileupload middleware
+app.use(fileUpload({
+  useTempFiles: true,
+  tempFileDir: '/tmp/',  // You can specify your temporary directory
+  limits: { fileSize: 50 * 1024 * 1024 }, // Set a file size limit (50 MB in this case)
+}));
 
 // ROUTES
 
