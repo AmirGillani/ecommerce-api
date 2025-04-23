@@ -44,30 +44,29 @@ module.exports.addProducts = asyncErrorHandler(async function (req, res, next) {
 
   let images = [];
 
-  // IF ONE IMAGE IS SENT THEN PUSH OTHER WISE PUT ARRAY OF NEW IMAGES IN IMAGES
+// If a single image is sent, convert to array
+if (typeof req.body.images === "string") {
+  images.push(req.body.images);
+} else if (Array.isArray(req.body.images)) {
+  images = req.body.images;
+}
 
-  if (typeof req.body.images === "string") {
-    images.push(req.body.images);
-  } else {
-    images = req.body.images;
-  }
+// Upload images to Cloudinary
+const imagesLinks = [];
 
-  const imagesLinks = [];
+for (let i = 0; i < images.length; i++) {
+  const result = await cloudinary.v2.uploader.upload(images[i], {
+    folder: "products",
+  });
 
-  // PUT THESE IMAGES IN PRODUCTS FOLDER OF CLOUDANARY
+  imagesLinks.push({
+    public_id: result.public_id,
+    url: result.secure_url,
+  });
+}
 
-  for (let i = 0; i < images.length; i++) {
-    const result = await cloudinary.v2.uploader.upload(images[i], {
-      folder: "products",
-    });
-
-    imagesLinks.push({
-      public_id: result.public_id,
-      url: result.secure_url,
-    });
-  }
-
-  req.body.images = imagesLinks;
+// Replace the images in the request body with uploaded image data
+req.body.images = imagesLinks;
 
   req.body.creator = req.user._id;
 
