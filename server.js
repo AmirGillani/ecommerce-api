@@ -32,7 +32,7 @@ const app = express();
 const corsOptions = {
 
   // SET ORIGION
-  origin: '*',
+  origin: 'https://ecommerce-frontend-pi-one.vercel.app/',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true, // Allows cookies to be sent cross-origin
 };
