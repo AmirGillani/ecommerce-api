@@ -51,22 +51,43 @@ if (typeof req.body.images === "string") {
   images = req.body.images;
 }
 
-// Upload images to Cloudinary
-const imagesLinks = [];
+// // Upload images to Cloudinary
+// const imagesLinks = [];
 
-for (let i = 0; i < images.length; i++) {
-  const result = await cloudinary.v2.uploader.upload(images[i], {
-    folder: "products",
-  });
+// for (let i = 0; i < images.length; i++) {
+//   const result = await cloudinary.v2.uploader.upload(images[i], {
+//     folder: "products",
+//   });
 
-  imagesLinks.push({
-    public_id: result.public_id,
-    url: result.secure_url,
-  });
-}
+//   imagesLinks.push({
+//     public_id: result.public_id,
+//     url: result.secure_url,
+//   });
+// }
 
-// Replace the images in the request body with uploaded image data
-req.body.images = imagesLinks;
+// // Replace the images in the request body with uploaded image data
+// req.body.images = imagesLinks;
+
+    const images = req.files;
+  const imagesLinks = [];
+
+  for (const file of images) {
+    const result = await cloudinary.v2.uploader.upload_stream(
+      { folder: "products" },
+      (error, result) => {
+        if (error) throw error;
+        imagesLinks.push({
+          public_id: result.public_id,
+          url: result.secure_url,
+        });
+      }
+    );
+
+    // Pipe file buffer into Cloudinary
+    streamifier.createReadStream(file.buffer).pipe(result);
+  }
+
+  req.body.images = imagesLinks;
 
   req.body.creator = req.user._id;
 
