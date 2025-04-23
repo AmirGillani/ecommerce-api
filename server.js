@@ -31,7 +31,7 @@ const app = express();
 
 const corsOptions = {
   origin: 'https://ecommerce-frontend-pi-one.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'],
   credentials: true, 
 };
 
