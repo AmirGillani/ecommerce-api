@@ -110,7 +110,7 @@ app.use((error, req, res, next) => {
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config({
-    path: path.resolve(__dirname, "./configuration/.env"),
+    path: path.resolve(__dirname, "./.env"),
   });
 }
 
