@@ -42,36 +42,16 @@ module.exports.allAdminProducts = asyncErrorHandler(async function (
 module.exports.addProducts = asyncErrorHandler(async function (req, res, next) {
   let product;
 
-  let images = [];
+  let imagesLinks = [];
 
-// Handle FormData image fields
-if (req.body.images) {
-  if (typeof req.body.images === "string") {
-    images.push(req.body.images);
-  } else if (Array.isArray(req.body.images)) {
-    images = req.body.images;
-  } else {
-    images = [req.body.images];
+  if (req.files && req.files.length > 0) {
+    imagesLinks = req.files.map((file) => ({
+      public_id: file.filename,
+      url: file.path,
+    }));
   }
-}
 
-// Upload images to Cloudinary
-const imagesLinks = [];
-
-for (let i = 0; i < images.length; i++) {
-  const result = await cloudinary.v2.uploader.upload(images[i], {
-    folder: "products",
-  });
-
-  imagesLinks.push({
-    public_id: result.public_id,
-    url: result.secure_url,
-  });
-}
-
-// Replace the images in the request body with uploaded image data
-req.body.images = imagesLinks;
-
+  req.body.images = imagesLinks;
 
   req.body.creator = req.user._id;
 
@@ -80,61 +60,35 @@ req.body.images = imagesLinks;
   res.status(201).json({ success: true, product: product });
 });
 
-module.exports.updateProduct = asyncErrorHandler(async function (req, res, next) {
-  let product;
+module.exports.updateProduct = asyncErrorHandler(async (req, res, next) => {
 
-  try {
-    product = await productsModel.findById(req.params.id);
-  } catch (err) {
-    return next(new HttpsError("Error while Updating", 500));
-  }
+  const product = await productsModel.findById(req.params.id);
 
   if (!product) {
     return next(new HttpsError("Product not found !!", 404));
   }
 
-  // ✅ If image is sent, update it
+  let imagesLinks = product.images;
 
-    let images = [];
-
-  if (req.body.images) {
-  if (typeof req.body.images === "string") {
-    images.push(req.body.images);
-  } else if (Array.isArray(req.body.images)) {
-    images = req.body.images;
-  } else {
-    images = product.images;
+  if (req.files && req.files.length > 0) {
+    imagesLinks = req.files.map((file) => ({
+      public_id: file.filename,
+      url: file.path,
+    }));
   }
-}
 
-  // Upload images to Cloudinary
-const imagesLinks = [];
+  req.body.images = imagesLinks;
 
-for (let i = 0; i < images.length; i++) {
-  const result = await cloudinary.v2.uploader.upload(images[i], {
-    folder: "products",
-  });
-
-  imagesLinks.push({
-    public_id: result.public_id,
-    url: result.secure_url,
-  });
-}
-
-// Replace the images in the request body with uploaded image data
-req.body.images = imagesLinks;
-
-  // 📝 Update the product
-  try {
-    product = await productsModel.findByIdAndUpdate(req.params.id, req.body, {
-      new: true, // return updated document
+  const updatedProduct = await productsModel.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    {
+      new: true,
       runValidators: true,
-    });
-  } catch (err) {
-    return next(new HttpsError("Error while Updating", 500));
-  }
+    }
+  );
 
-  res.status(200).json({ success: true, product });
+  res.status(200).json({ success: true, product: updatedProduct });
 });
 
 module.exports.deleteProduct = asyncErrorHandler(async function (

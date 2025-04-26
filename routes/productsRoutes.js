@@ -4,6 +4,8 @@ const auth = require("../middlewares/auth");
 
 const express = require("express");
 
+const uploader = require("../middlewares/uploader");
+
 const route = express.Router();
 
 route.route("/").get(productsController.allProducts);
@@ -30,6 +32,7 @@ route
   .post(
     auth.isAuthenticated,
     auth.checkRoles("admin"),
+    uploader.array("images", 4),
     productsController.addProducts
   );
 
@@ -39,6 +42,7 @@ route
   .patch(
     auth.isAuthenticated,
     auth.checkRoles("admin"),
+    uploader.array("images", 4),
     productsController.updateProduct
   )
   .delete(

@@ -9,16 +9,40 @@ const catchAsyncError = require("../middlewares/catch-async-errors");
 const sendEmail = require("../utils/send-email");
 
 module.exports.signup = async function (req, res, next) {
-
-  const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
-    folder: "avatars",
-    width: 150,
-    crop: "scale",
-  });
   const { name, email, password } = req.body;
 
-  const hash = await bcrypt.hash(password, 10);
+  // Step 1: Validate password strength
+  if (password.length < 6) {
+    return next(
+      new HttpError("Password must be at least 6 characters long.", 400)
+    );
+  }
 
+  // Step 2: Check if email already exists
+  const existingUser = await userModel.findOne({ email });
+  if (existingUser) {
+    return next(new HttpError("Email already in use.", 400));
+  }
+
+  // Step 3: Hash the password
+  let hash;
+  try {
+    hash = await bcrypt.hash(password, 10);
+  } catch (err) {
+    console.error("Error hashing password:", err);
+    return next(new HttpError("Error occurred while hashing password.", 500));
+  }
+
+  // Step 4: Validate the uploaded avatar file
+  if (!req.file) {
+    return next(new HttpError("Avatar image is required.", 400));
+  }
+
+  if (!req.file.mimetype.startsWith("image/")) {
+    return next(new HttpError("Only image files are allowed for avatar.", 400));
+  }
+
+  // Step 5: Create the new user
   let user;
   try {
     user = await userModel.create({
@@ -26,15 +50,22 @@ module.exports.signup = async function (req, res, next) {
       email,
       password: hash,
       avatar: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
+        public_id: req.file.filename, // Cloudinary's public ID
+        url: req.file.path, // Cloudinary's URL
       },
     });
   } catch (err) {
-    return next(new HttpError(`Error occoured !! ${err}`, 1100));
+    console.error("Error creating user:", err);
+    return next(new HttpError("Error occurred while creating user.", 500));
   }
 
-  createToken(user, 201, res);
+  // Step 6: Generate token and send response
+  try {
+    createToken(user, 201, res);
+  } catch (err) {
+    console.error("Error generating token:", err);
+    return next(new HttpError("Error occurred while generating token.", 500));
+  }
 };
 
 module.exports.login = catchAsyncError(async function (req, res, next) {
@@ -197,36 +228,31 @@ module.exports.updateProfile = catchAsyncError(async function (req, res, next) {
   const { name, email } = req.body;
 
   const user = await userModel.findById(req.user._id);
-
-  console.log(user);
-  
   if (!user) {
-    return next("Login First", 401);
+    return next("Login First", 401); // or use a custom error class for better control
   }
 
-  if(req.body.avatar !== "")
-  {
-    const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
-      folder: "avatars",
-      width: 150,
-      crop: "scale",
-    });
-
-    user.avatar= {
-      public_id: myCloud.public_id,
-      url: myCloud.secure_url,
-    }
+  // Update avatar if new file is uploaded
+  if (req.file) {
+    user.avatar = {
+      public_id: req.file.filename, // this is from Cloudinary via multer-storage-cloudinary
+      url: req.file.path,
+    };
   }
 
-
+  // Update basic info
   user.name = name;
   user.email = email;
+
   await user.save();
 
-  res
-    .status(200)
-    .json({ success: true, message: "successfully updated", user });
+  res.status(200).json({
+    success: true,
+    message: "Successfully updated",
+    user,
+  });
 });
+
 
 // ADMIN ROUTES
 
@@ -254,15 +280,14 @@ module.exports.singleUser = catchAsyncError(async function (req, res, next) {
 });
 
 module.exports.updateRole = catchAsyncError(async function (req, res, next) {
-
   const user = await userModel.findById(req.params.id);
 
   if (!user) {
     return next("Login First", 401);
   }
 
-  user.name= req.body.name;
-  user.email= req.body.email;
+  user.name = req.body.name;
+  user.email = req.body.email;
   user.role = req.body.role;
 
   await user.save();
@@ -280,14 +305,12 @@ module.exports.deleteUser = catchAsyncError(async function (req, res, next) {
   }
 
   // DELETE USER PHOTO FROM CLAUDINARY
-  
-  if(user.avatar.public_id)
-  {
-    const id= user.avatar.public_id;
+
+  if (user.avatar.public_id) {
+    const id = user.avatar.public_id;
 
     await cloudinary.v2.uploader.destroy(id);
   }
- 
 
   await userModel.findOneAndDelete({ _id: user._id });
 

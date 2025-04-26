@@ -4,9 +4,11 @@ const userControler = require("../controllers/userController");
 
 const auth = require("../middlewares/auth");
 
+const uploader = require("../middlewares/uploader");
+
 const route= express.Router();
 
-route.post("/signup",userControler.signup);
+route.post("/signup",uploader.single("avatar"),userControler.signup);
 
 route.post("/login",userControler.login);
 
@@ -20,7 +22,7 @@ route.get("/me",auth.isAuthenticated, userControler.userDetails);
 
 route.patch("/password/updatepassword",auth.isAuthenticated, userControler.updatePassword);
 
-route.patch("/me/updateprofile",auth.isAuthenticated, userControler.updateProfile);
+route.patch("/me/updateprofile",auth.isAuthenticated,uploader.single("avatar"), userControler.updateProfile);
 
 // ADMIN ROUTES
 
